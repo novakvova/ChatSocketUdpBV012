@@ -30,7 +30,7 @@ namespace ServerChatConsole
         {
             //Console.WriteLine(Encoding.UTF8.GetBytes("vvПривіт").Length);
             serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            IPAddress ip = IPAddress.Parse("127.0.0.1");
+            IPAddress ip = IPAddress.Parse("91.238.103.51");
             IPEndPoint endPoint = new IPEndPoint(ip, 2000);
             serverSocket.Bind(endPoint);
 
