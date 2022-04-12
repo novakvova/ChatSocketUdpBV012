@@ -17,7 +17,7 @@ namespace ServerChatConsole
             public EndPoint endPoint;
             public string name;
         }
-        List<Client> clients = new List<Client>();
+        private static List<Client> listClients = new List<Client>();
 
         // Server socket
         private static Socket serverSocket;
@@ -52,14 +52,72 @@ namespace ServerChatConsole
         {
             try
             {
-                Paket clientData = new Paket(dataStream);
                 allDone.Set();
+                Paket clientData = new Paket(dataStream);
+                //дані що відправляє серввер усім клієнтам
+                Paket sendData = new Paket();
+                // Initialise the IPEndPoint for the clients
+                IPEndPoint clients = new IPEndPoint(IPAddress.Any, 0);
+
+                // Initialise the EndPoint for the clients
+                EndPoint epSender = (EndPoint)clients;
+                // Receive all data
+                serverSocket.EndReceiveFrom(asyncResult, ref epSender);
+                // Start populating the packet to be sent
+                sendData.TypeMessage = clientData.TypeMessage;
+                sendData.UserName = clientData.UserName;
+
+                switch (clientData.TypeMessage)
+                {
+                    case DataIdentifier.Message:
+                        break;
+                    case DataIdentifier.LogIn:
+                        // Populate client object
+                        Client client = new Client();
+                        client.endPoint = epSender;
+                        client.name = clientData.UserName;
+
+                        // Add client to list
+                        listClients.Add(client);
+
+                        sendData.Message = string.Format("-- {0} is online --", clientData.UserName);
+                        break;
+
+                    case DataIdentifier.LogOut:
+                        break;
+                }
+
+                //Отримує масив байт, який будемо розсилати
+                byte[] data = sendData.GetDataStream();
+
+                foreach (Client client in listClients)
+                {
+                    if (client.endPoint != epSender || sendData.TypeMessage != DataIdentifier.LogIn)
+                    {
+                        // Broadcast to all logged on users
+                        serverSocket.BeginSendTo(data, 0, data.Length, SocketFlags.None, client.endPoint, new AsyncCallback(SendData), client.endPoint);
+                    }
+                }
+
+
 
             }
             catch (Exception ex)
             {
 
                 Console.WriteLine("Problem read data");
+            }
+        }
+
+        public static void SendData(IAsyncResult asyncResult)
+        {
+            try
+            {
+                serverSocket.EndSend(asyncResult);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("SendData Error: " + ex.Message);
             }
         }
     }
