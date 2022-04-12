@@ -35,7 +35,7 @@ namespace ServerChatConsole
             serverSocket.Bind(endPoint);
 
             Console.WriteLine("Server Start --------");
-            while(true)
+            while (true)
             {
                 allDone.Reset();
                 IPEndPoint client = new IPEndPoint(ip, 0);
@@ -44,7 +44,7 @@ namespace ServerChatConsole
                     new AsyncCallback(ReceiveData), epSender);
                 allDone.WaitOne();
             }
-            
+
             //Console.ReadKey();
         }
 
@@ -70,6 +70,7 @@ namespace ServerChatConsole
                 switch (clientData.TypeMessage)
                 {
                     case DataIdentifier.Message:
+                        sendData.Message = string.Format("{0}: {1}", clientData.UserName, clientData.Message);
                         break;
                     case DataIdentifier.LogIn:
                         // Populate client object
@@ -80,10 +81,20 @@ namespace ServerChatConsole
                         // Add client to list
                         listClients.Add(client);
 
-                        sendData.Message = string.Format("-- {0} is online --", clientData.UserName);
+                        sendData.Message = string.Format("-- {0} користувач зайшов в чат --", clientData.UserName);
                         break;
 
                     case DataIdentifier.LogOut:
+                        // Remove current client from list
+                        foreach (Client c in listClients)
+                        {
+                            if (c.endPoint.Equals(epSender))
+                            {
+                                listClients.Remove(c);
+                                break;
+                            }
+                        }
+                        sendData.Message = string.Format("-- {0} користувач покинув чат --", clientData.UserName);
                         break;
                 }
 
@@ -98,6 +109,12 @@ namespace ServerChatConsole
                         serverSocket.BeginSendTo(data, 0, data.Length, SocketFlags.None, client.endPoint, new AsyncCallback(SendData), client.endPoint);
                     }
                 }
+
+                // Listen for more connections again...
+
+                //serverSocket.BeginReceiveFrom(dataStream, 0, dataStream.Length, SocketFlags.None, ref epSender, new AsyncCallback(ReceiveData), epSender);
+
+                Console.WriteLine(sendData.Message);
 
 
 
