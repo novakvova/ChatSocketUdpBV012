@@ -79,7 +79,7 @@ namespace ClientForms
                     Paket sendData = new Paket();
                     sendData.TypeMessage = DataIdentifier.LogOut;
                     sendData.UserName = this.name;
-                    sendData.Message = null;
+                    sendData.Message = "";
 
                     // Get packet as byte array
                     byte[] byteData = sendData.GetDataStream();
@@ -106,7 +106,7 @@ namespace ClientForms
                 // Initialise a packet object to store the data to be sent
                 Paket sendData = new Paket();
                 sendData.UserName = this.name;
-                sendData.Message = null;
+                sendData.Message = "";
                 sendData.TypeMessage = DataIdentifier.LogIn;
 
                 // Initialise socket

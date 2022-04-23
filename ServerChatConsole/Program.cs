@@ -30,9 +30,11 @@ namespace ServerChatConsole
         {
             //Console.WriteLine(Encoding.UTF8.GetBytes("vvПривіт").Length);
             serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            IPAddress ip = IPAddress.Parse("91.238.103.51");
+            //IPAddress ip = IPAddress.Parse("91.238.103.51");
+            IPAddress ip = IPAddress.Parse("127.0.0.1");
             IPEndPoint endPoint = new IPEndPoint(ip, 2000);
             serverSocket.Bind(endPoint);
+            
 
             Console.WriteLine("Server Start --------");
             while (true)
@@ -122,7 +124,7 @@ namespace ServerChatConsole
             catch (Exception ex)
             {
 
-                Console.WriteLine("Problem read data");
+                Console.WriteLine("Problem read data "+ ex.Message);
             }
         }
 
